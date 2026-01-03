@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>MindAR + YouTube</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- MindAR Image Tracking -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #youtubeVideo {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 45%;
+      border: none;
+      display: none;
+      z-index: 5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- IFRAME YouTube (oculto por defecto) -->
+  <iframe
+    id="youtubeVideo"
+    src="https://www.youtube.com/embed/nyTi-lZdBUE?autoplay=1&controls=1"
+    allow="autoplay; encrypted-media"
+    allowfullscreen
+  ></iframe>
+
+  <a-scene
+    mindar-image="imageTargetSrc: targets.mind; autoStart: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Target -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      <!-- Puedes poner un plano vacío o guía aquí -->
+      <a-plane
+        position="0 0 0"
+        width="1.2"
+        height="0.675"
+        color="#000"
+        opacity="0.4">
+      </a-plane>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    const iframe = document.getElementById("youtubeVideo");
+    const target = document.querySelector("[mindar-image-target]");
+
+    // Aparece el iframe cuando se detecta la imagen
+    target.addEventListener("targetFound", () => {
+      iframe.style.display = "block";
+    });
+
+    // Oculta el iframe cuando se pierde
+    target.addEventListener("targetLost", () => {
+      iframe.style.display = "none";
+      iframe.src = iframe.src; // reset
+    });
+  </script>
+
+</body>
+</html>
