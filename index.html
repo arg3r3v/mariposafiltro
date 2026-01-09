@@ -1,34 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>MindAR con A-Frame: Mariposa animada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Librerías necesarias -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Cargar librerías MindAR y A-Frame -->
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image.prod.js"></script>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
-  <a-scene mindar-image="imageTargetSrc:trajets.mind; showStats: true"
-           color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights"
-           vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-
+  <a-scene mindar-image="imageTargetSrc: ./tarjets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <!-- Cargar modelo GLB como asset -->
     <a-assets>
-      <!-- Precarga del modelo 3D con animaciones -->
       <a-asset-item id="mariposaModel" src="mariposa.glb"></a-asset-item>
     </a-assets>
 
+    <!-- Cámara en el origen (fija en AR) -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Entidad ancla del marcador -->
+    <!-- Entidad vinculada al marcador (targetIndex: 0) -->
     <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Modelo 3D con animaciones en bucle -->
-      <a-gltf-model src="#mariposaModel" scale="0.5 0.5 0.5" rotation="0 180 0"
-                    animation-mixer></a-gltf-model>
+      <!-- Modelo 3D animado -->
+      <a-entity gltf-model="#mariposaModel" scale="1 1 1" rotation="0 0 0" animation-mixer></a-entity>
     </a-entity>
-
   </a-scene>
 </body>
 </html>
-
