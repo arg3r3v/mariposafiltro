@@ -2,12 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR + YouTube</title>
+  <title>MindAR – Mariposa Animada</title>
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-  <!-- MindAR Image Tracking -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
@@ -15,63 +12,50 @@
       margin: 0;
       overflow: hidden;
     }
-    #youtubeVideo {
-      position: absolute;
-      top: 10%;
-      left: 10%;
-      width: 80%;
-      height: 45%;
-      border: none;
-      display: none;
-      z-index: 5;
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- IFRAME YouTube (oculto por defecto) -->
-  <iframe
-    id="youtubeVideo"
-    src="https://www.youtube.com/embed/nyTi-lZdBUE?autoplay=1&controls=1"
-    allow="autoplay; encrypted-media"
-    allowfullscreen
-  ></iframe>
-
   <a-scene
-    mindar-image="imageTargetSrc: targets.mind; autoStart: true;"
+    mindar-image="imageTargetSrc: tarjets.mind; autoStart: true;"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
+    renderer="colorManagement: true"
   >
+
+    <a-assets>
+      <a-asset-item id="mariposa" src="mariposa.glb"></a-asset-item>
+    </a-assets>
+
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Target -->
     <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Puedes poner un plano vacío o guía aquí -->
-      <a-plane
+
+      <a-entity
+        id="butterfly"
+        gltf-model="#mariposa"
         position="0 0 0"
-        width="1.2"
-        height="0.675"
-        color="#000"
-        opacity="0.4">
-      </a-plane>
+        rotation="0 0 0"
+        scale="0.4 0.4 0.4"
+        animation-mixer="loop: repeat; timeScale: 1"
+        visible="false"
+      ></a-entity>
+
     </a-entity>
 
   </a-scene>
 
   <script>
-    const iframe = document.getElementById("youtubeVideo");
     const target = document.querySelector("[mindar-image-target]");
+    const butterfly = document.querySelector("#butterfly");
 
-    // Aparece el iframe cuando se detecta la imagen
     target.addEventListener("targetFound", () => {
-      iframe.style.display = "block";
+      butterfly.setAttribute("visible", true);
     });
 
-    // Oculta el iframe cuando se pierde
     target.addEventListener("targetLost", () => {
-      iframe.style.display = "none";
-      iframe.src = iframe.src; // reset
+      butterfly.setAttribute("visible", false);
     });
   </script>
 
