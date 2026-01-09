@@ -3,31 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MindAR – Mariposa Animada</title>
 
-  <!-- MindAR core -->
-  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image.prod.js"></script>
-
-  <!-- A-Frame (versión recomendada en los ejemplos) -->
+  <!-- A-Frame (v1.5 es el que usan los ejemplos) -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <!-- A-Frame extras (animation-mixer) - necesario para reproducir animaciones de glTF -->
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-
-  <!-- MindAR A-Frame bridge -->
-  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-  <style>
-    body { margin: 0; overflow: hidden; }
-  </style>
+  <!-- MindAR A-Frame -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
-<body>
 
+<body>
   <a-scene
     mindar-image="imageTargetSrc: ./tarjets.mind; autoStart: true;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
-    renderer="colorManagement: true"
   >
     <a-assets>
       <a-asset-item id="mariposa" src="mariposa.glb"></a-asset-item>
@@ -36,36 +26,13 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-entity
-        id="butterfly"
-        gltf-model="#mariposa"
-        position="0 0 0"
-        rotation="0 0 0"
+      <a-gltf-model
+        src="#mariposa"
         scale="0.4 0.4 0.4"
-        animation-mixer="loop: repeat; timeScale: 1"
-        visible="false"
-      ></a-entity>
+        animation-mixer
+      ></a-gltf-model>
     </a-entity>
 
   </a-scene>
-
-  <script>
-    // Selectores robustos y chequeo de existencia
-    const target = document.querySelector('a-entity[mindar-image-target]');
-    const butterfly = document.querySelector('#butterfly');
-
-    if (!target) console.warn('No se encontró a-entity[mindar-image-target]. Revisa el HTML.');
-    if (!butterfly) console.warn('No se encontró #butterfly. Revisa el id y el <a-asset-item>.');
-
-    if (target && butterfly) {
-      target.addEventListener('targetFound', () => {
-        butterfly.setAttribute('visible', true);
-      });
-      target.addEventListener('targetLost', () => {
-        butterfly.setAttribute('visible', false);
-      });
-    }
-  </script>
-
 </body>
 </html>
