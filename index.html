@@ -1,38 +1,113 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mariposa AR (MindAR)</title>
 
-  <!-- A-Frame (v1.5 es el que usan los ejemplos) -->
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- A-Frame (usar la versión que aparece en la doc) -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-  <!-- MindAR A-Frame -->
+  <!-- aframe-extras (proporciona animation-mixer, útil para GLB con clips) -->
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+  <!-- MindAR A-Frame bridge (doc usa 1.2.5) -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-</head>
 
+  <style>
+    html,body { height: 100%; margin: 0; background: #000; overflow: hidden; }
+    #debug {
+      position: fixed; left: 0; bottom: 0; z-index: 9999;
+      background: rgba(0,0,0,0.6); color:#fff; font-family: monospace;
+      font-size:12px; padding:6px; max-height:30vh; overflow:auto;
+      width:100%;
+    }
+  </style>
+</head>
 <body>
+  <!-- Mensajes de depuración en pantalla -->
+  <div id="debug">Debug: iniciando...</div>
+
+  <!-- Escena MindAR (nota las rutas absolutas para GitHub Pages) -->
   <a-scene
-    mindar-image="imageTargetSrc: ./tarjets.mind; autoStart: true;"
+    mindar-image="imageTargetSrc: /mariposafiltro/tarjets.mind; showStats: true;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
   >
     <a-assets>
-      <a-asset-item id="mariposa" src="mariposa.glb"></a-asset-item>
+      <!-- Asegúrate que el id coincide con src del <a-gltf-model> -->
+      <a-asset-item id="mariposa" src="/mariposafiltro/mariposa.glb"></a-asset-item>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+    <!-- TargetIndex 0 = primera imagen dentro de tu tarjets.mind -->
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model
-        src="#mariposa"
-        scale="0.4 0.4 0.4"
-        animation-mixer
-      ></a-gltf-model>
+      <!-- GLB: usamos a-gltf-model y animation-mixer para clips internos -->
+      <a-gltf-model id="butterfly" src="#mariposa" position="0 0 0.05" rotation="0 180 0" scale="0.25 0.25 0.25" visible="false" animation-mixer></a-gltf-model>
     </a-entity>
-
   </a-scene>
+
+  <script>
+    const dbg = (msg) => {
+      const el = document.getElementById('debug');
+      el.innerText += '\n' + msg;
+      console.log('[MARIPOSA]', msg);
+    };
+
+    window.addEventListener('load', () => {
+      dbg('window load: init');
+
+      const target = document.querySelector('a-entity[mindar-image-target]');
+      const butterfly = document.querySelector('#butterfly');
+
+      if (!target) { dbg('ERROR: no se encontró a-entity[mindar-image-target]'); return; }
+      if (!butterfly) { dbg('ERROR: no se encontró #butterfly'); return; }
+
+      // Cuando el modelo carga, comprobamos si trae animaciones internas (gltf.animations)
+      butterfly.addEventListener('model-loaded', (ev) => {
+        // ev.detail.model es el THREE.Scene cargado por GLTFLoader
+        const gltf = ev && ev.detail && ev.detail.model;
+        const anims = (gltf && gltf.animations) || (gltf && gltf.scene && gltf.scene.animations) || [];
+        dbg('model-loaded → animations.length = ' + anims.length);
+
+        if (anims.length === 0) {
+          dbg('⚠ El GLB NO tiene clips internos. Se activará fallback de aleteo (A-Frame animation).');
+          butterfly.setAttribute('animation__flap', {
+            property: 'rotation',
+            to: '0 200 0',
+            dir: 'alternate',
+            dur: 700,
+            loop: true,
+            easing: 'easeInOutSine'
+          });
+        } else {
+          dbg('✔ GLB con clips detectados. animation-mixer reproducirá clips cuando se active.');
+          // Si quieres elegir un clip en particular puedes hacerlo con:
+          // butterfly.setAttribute('animation-mixer', 'clip: nombre_del_clip; loop: repeat; timeScale: 1');
+          // Pero por defecto animation-mixer reproduce el primer clip.
+        }
+      });
+
+      // Al detectar el target: mostramos y arrancamos animación
+      target.addEventListener('targetFound', () => {
+        dbg('targetFound → mostrar mariposa y reanudar anim');
+        butterfly.setAttribute('visible', true);
+        // activar/mantener animation-mixer
+        butterfly.setAttribute('animation-mixer', 'timeScale: 1');
+      });
+
+      // Al perder target: ocultamos y pausamos animación para ahorrar CPU
+      target.addEventListener('targetLost', () => {
+        dbg('targetLost → ocultar mariposa y pausar anim');
+        butterfly.setAttribute('visible', false);
+        butterfly.setAttribute('animation-mixer', 'timeScale: 0');
+      });
+
+      dbg('listeners instalados. Esperando model-loaded y detección del target...');
+    });
+  </script>
 </body>
 </html>
