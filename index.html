@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AR Mariposa Animada</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body>
@@ -24,23 +25,12 @@
           id="mariposa"
           rotation="90 0 0" 
           position="0 0 0" 
-          scale="1 1 1" 
+          scale="0.5 0.5 0.5" 
           src="#mariposaModel"
           animation-mixer="loop: 'repeat'">
         </a-gltf-model>
       </a-entity>
 
     </a-scene>
-
-    <!-- DEBUG: Abre F12 y mira la consola -->
-    <script>
-      AFRAME.registerComponent('debug-anims', {
-        init: function() {
-          this.el.addEventListener('model-loaded', (e) => {
-            console.log('🔍 Animaciones del GLB:', e.detail.model.animations);
-          });
-        }
-      });
-    </script>
   </body>
 </html>
